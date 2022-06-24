@@ -13,7 +13,7 @@ import (
 	"github.com/libp2p/go-libp2p-core/network"
 
 	"github.com/libp2p/go-libp2p"
-	//quic "github.com/libp2p/go-libp2p/p2p/transport/quic"
+	quic "github.com/libp2p/go-libp2p/p2p/transport/quic"
 	"github.com/libp2p/go-libp2p/p2p/transport/tcp"
 )
 
@@ -42,7 +42,7 @@ func main() {
 
 	ha.SetStreamHandler("/echo/1.0.0", func(s network.Stream) {
 		defer s.Close()
-		s.SetDeadline(time.Now().Add(time.Minute))
+		s.SetDeadline(time.Now().Add(time.Second))
 		_, err := io.Copy(s, s)
 		if err != nil {
 			os.Stderr.WriteString(err.Error() + "\n")
@@ -78,7 +78,7 @@ func makeBasicHost(randseed int64) (host.Host, error) {
 		libp2p.Identity(priv),
 		libp2p.DisableRelay(),
 		libp2p.Transport(tcp.NewTCPTransport),
-		//libp2p.Transport(quic.NewTransport),
+		libp2p.Transport(quic.NewTransport),
 	}
 
 	return libp2p.New(opts...)

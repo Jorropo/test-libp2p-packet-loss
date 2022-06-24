@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/signal"
 	"sync"
+	"time"
 
 	"github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p-core/crypto"
@@ -19,7 +20,7 @@ import (
 	"github.com/libp2p/go-libp2p/p2p/transport/tcp"
 )
 
-const testSize = 1024 * 1024 * 1024 // 1GiB
+const testSize = 1024 * 1024 * 16 // 16MiB
 
 func main() {
 	pi, err := peer.AddrInfoFromString(os.Args[1])
@@ -65,7 +66,7 @@ func main() {
 		panic(err)
 	}
 	defer s.Close()
-	//s.SetDeadline(time.Now().Add(time.Second * 60))
+	s.SetDeadline(time.Now().Add(time.Second))
 	var wait sync.Mutex
 	wait.Lock()
 	var red []byte
