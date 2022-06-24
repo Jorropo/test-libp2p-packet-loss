@@ -1,4 +1,4 @@
-module github.com/Jorropo/quic-test-packet-loss
+module github.com/Jorropo/test-libp2p-packet-loss
 
 go 1.18
 
