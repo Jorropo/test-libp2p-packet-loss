@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-const packetLoss = "33%"
+const packetLoss = "15%"
 
 func main() {
 	if runtime.GOOS != "linux" {
@@ -160,10 +160,11 @@ func main() {
 	fmt.Println()
 	fmt.Println("it should be automatically removed")
 	fmt.Println("in case rule is left after the script exit, do the following to get rid of it:")
+	const tcRemoveCommand = "tc qdisc del dev lo root netem"
 	if sudoPath == "" {
-		fmt.Println("tc qdisc del dev lo root netem")
+		fmt.Println(tcRemoveCommand)
 	} else {
-		fmt.Println("sudo tc qdisc del dev lo root netem")
+		fmt.Println("sudo " + tcRemoveCommand)
 	}
 	fmt.Println()
 
