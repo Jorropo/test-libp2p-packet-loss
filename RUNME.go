@@ -201,22 +201,22 @@ func main() {
 	client.Stdin = null
 	client.Stdout = null
 	client.Stderr = os.Stderr
+	start := time.Now()
 	err = client.Run()
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("TCP is a success!")
-	fmt.Println()
+	fmt.Printf("TCP is a success! Took: %s\n\n", time.Since(start))
 
 	fmt.Println("testing QUIC")
 	client = exec.Command(cwd+"/client/client", "/ip4/127.13.37.42/udp/12345/quic/p2p/12D3KooWNrc4Mm7jxnQ7FpraoDEZ3aAqF5QUzZwsGfgRRqw7asJG")
 	client.Stdin = null
 	client.Stdout = null
 	client.Stderr = os.Stderr
+	start = time.Now()
 	err = client.Run()
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("QUIC is a success!")
-	fmt.Println()
+	fmt.Printf("QUIC is a success! Took: %s\n\n", time.Since(start))
 }
