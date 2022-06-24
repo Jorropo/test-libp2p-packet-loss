@@ -42,7 +42,7 @@ func main() {
 
 	ha.SetStreamHandler("/echo/1.0.0", func(s network.Stream) {
 		defer s.Close()
-		s.SetDeadline(time.Now().Add(time.Second))
+		s.SetDeadline(time.Now().Add(time.Second * 30))
 		_, err := io.Copy(s, s)
 		if err != nil {
 			os.Stderr.WriteString(err.Error() + "\n")

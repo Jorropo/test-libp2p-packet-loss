@@ -66,7 +66,7 @@ func main() {
 		panic(err)
 	}
 	defer s.Close()
-	s.SetDeadline(time.Now().Add(time.Second))
+	s.SetDeadline(time.Now().Add(time.Second * 30))
 	var wait sync.Mutex
 	wait.Lock()
 	var red []byte
