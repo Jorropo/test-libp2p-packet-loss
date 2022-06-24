@@ -19,7 +19,7 @@ import (
 	"github.com/libp2p/go-libp2p/p2p/transport/tcp"
 )
 
-const testSize = 64*1024 - 1
+const testSize = 1024 * 1024 * 1024 // 1GiB
 
 func main() {
 	pi, err := peer.AddrInfoFromString(os.Args[1])
@@ -78,6 +78,10 @@ func main() {
 		}
 	}()
 	_, err = s.Write(data)
+	if err != nil {
+		panic(err)
+	}
+	err = s.CloseWrite()
 	if err != nil {
 		panic(err)
 	}

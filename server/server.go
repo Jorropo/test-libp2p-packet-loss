@@ -45,9 +45,18 @@ func main() {
 		s.SetDeadline(time.Now().Add(time.Minute))
 		_, err := io.Copy(s, s)
 		if err != nil {
-			panic(err)
+			os.Stderr.WriteString(err.Error() + "\n")
 		}
 	})
+
+	_, err = os.Stdout.WriteString("running")
+	if err != nil {
+		panic(err)
+	}
+	err = os.Stdout.Close()
+	if err != nil {
+		panic(err)
+	}
 
 	<-ctx.Done()
 }

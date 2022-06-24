@@ -3,15 +3,22 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"runtime"
 	"strings"
+	"time"
 )
 
 func main() {
 	if runtime.GOOS != "linux" {
 		panic("Only Linux is supported.")
+	}
+
+	cwd, err := os.Getwd()
+	if err != nil {
+		panic(err)
 	}
 
 	null, err := os.Open("/dev/null")
@@ -53,20 +60,73 @@ func main() {
 		panic("could not run go: " + err.Error())
 	}
 
-	// Get tc's path
-	tcPath, err := exec.LookPath("tc")
+	// Builds
+	fmt.Println("building client")
+	build := exec.Command(goCmdPath, "build", ".")
+	build.Dir = cwd + "/client"
+	build.Stdin = null
+	build.Stdout = os.Stdout
+	build.Stderr = os.Stdout
+	err = build.Run()
 	if err != nil {
-		panic(`could not find tc binary "tc": ` + err.Error())
+		panic(err)
 	}
 
-	tcTest := exec.Command(tcPath, "-V")
-	tcTest.Stdin = null
-	tcTest.Stdout = null
-	tcTest.Stderr = null
-
-	err = tcTest.Run()
+	fmt.Println("building server")
+	build = exec.Command(goCmdPath, "build", ".")
+	build.Dir = cwd + "/server"
+	build.Stdin = null
+	build.Stdout = os.Stdout
+	build.Stderr = os.Stdout
+	err = build.Run()
 	if err != nil {
-		panic("could not run tc: " + err.Error())
+		panic(err)
 	}
 
+	fmt.Println("starting server")
+	server := exec.Command(cwd + "/server/server")
+	server.Stdin = null
+	server.Stderr = os.Stderr
+	out, err := server.StdoutPipe()
+	if err != nil {
+		panic(err)
+	}
+	defer out.Close()
+	err = server.Start()
+	if err != nil {
+		panic(err)
+	}
+	defer server.Process.Kill()
+	t := time.NewTimer(time.Second)
+	c := make(chan struct{})
+	go func() {
+		select {
+		case <-c:
+		case <-t.C:
+			out.Close()
+		}
+	}()
+	got, err := io.ReadAll(out)
+	close(c)
+	t.Stop()
+	out.Close()
+	if err != nil {
+		panic(err)
+	}
+
+	if string(got) != "running" {
+		panic("didn't got expected \"running\" from server")
+	}
+
+	fmt.Println("server running\nstarting client")
+	client := exec.Command(cwd+"/client/client", "/ip4/127.13.37.42/tcp/12345/p2p/12D3KooWNrc4Mm7jxnQ7FpraoDEZ3aAqF5QUzZwsGfgRRqw7asJG")
+	client.Stdin = null
+	client.Stdout = null
+	client.Stderr = os.Stderr
+	err = client.Run()
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("success!")
 }
