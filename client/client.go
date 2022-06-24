@@ -70,6 +70,7 @@ func main() {
 	wait.Lock()
 	var red []byte
 	go func() {
+		defer wait.Unlock()
 		var err error
 		red, err = io.ReadAll(s)
 		if err != nil {
@@ -80,6 +81,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	wait.Lock()
 
 	if !bytes.Equal(data, red) {
 		panic("data received != data sent")

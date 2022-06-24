@@ -6,6 +6,7 @@ import (
 	mrand "math/rand"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/libp2p/go-libp2p-core/crypto"
 	"github.com/libp2p/go-libp2p-core/host"
@@ -40,6 +41,8 @@ func main() {
 	defer ha.Close()
 
 	ha.SetStreamHandler("/echo/1.0.0", func(s network.Stream) {
+		defer s.Close()
+		s.SetDeadline(time.Now().Add(time.Minute))
 		_, err := io.Copy(s, s)
 		if err != nil {
 			panic(err)
